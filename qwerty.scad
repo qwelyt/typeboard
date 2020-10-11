@@ -2,6 +2,10 @@
 $fn= 400;
 $stem_throw = 4;
 extra_vertical=0;
+space=19.04;
+cherryCutOutSize=13.9954;
+cherrySize=14.58;
+mountHole=6;
 
 // .005 purely for aesthetics, to get rid of that ugly crosshatch
 function cherry_cross(slop, extra_vertical = 0) = [
@@ -39,7 +43,28 @@ module box_cherry_stem(depth, slop) {
 }
 
 
+module mxSwitchCut(x=0,y=0,z=0,rotateCap=false){
+  capRotation = rotateCap ? 90 : 0;
+  d=14.05;
+  p=14.58/2+0.3;
+  translate([x,y,z]){
+    translate([0,0,-3.7])
+    rotate([0,0,capRotation]){
+      difference(){
+        cube([d,d,10], center=true);
+        translate([d*0.5,0,0])cube([1,4,12],center=true);
+        translate([-d*0.5,0,0])cube([1,4,12],center=true);
+      }
 
+
+      translate([0,-(p-0.6),1.8]) rotate([-10,0,0]) cube([cherryCutOutSize/2,1,1.6],center=true);
+      translate([0,-(p-0.469),-1.95]) cube([cherryCutOutSize/2,1,6.099],center=true);
+
+      translate([0,(p-0.6),1.8]) rotate([10,0,0]) cube([cherryCutOutSize/2,1,1.6],center=true);
+      translate([0,(p-0.469),-1.95]) cube([cherryCutOutSize/2,1,6.099],center=true);
+    }
+  }
+}
 
 
 
@@ -56,17 +81,29 @@ module curve(length, dh) {
   children();
 }
 
+module tMount(d){
+  translate([0,0,4])cube([d,3,d],center=true);
+  translate([-1,0,4])cube([3,10,d],center=true);
+}
 
-module cap(d=6){
+module cap(d=5,real=true){
+
   difference(){
-    minkowski(){
-      cube([19,19,5],center=true);
-      sphere(d=19/4);
+    if(real){
+      minkowski(){
+        cube([10,10,3],center=true);
+        sphere(d=10/4);
+      }
+    } else {
+//      translate([15,0,0])
+      cube([12,12,5],center=true);
     }
-    translate([0,0,6])scale([2,2,0.25])sphere(d=19);
-    translate([0,0,-3]){
-      translate([0,0,0])cube([d,4,d],center=true);
-      translate([-1,0,0])cube([4,11,d],center=true);
+    
+    if(real){
+      translate([0,0,5])scale([0.9,0.9,0.35])sphere(d=19);
+    }
+    translate([0,0,-6]){
+      scale([1.02,1.02,1])tMount(d);
     }
   }
     
@@ -74,29 +111,68 @@ module cap(d=6){
 
 module stem(d=5){
 //  translate([-d,0,0])rotate([0,90,0])cylinder(d=3,h=d*2);
-  translate([0,0,-18]){
-    e=d+4;
-    f=d+0.9;
-    cube([e,f,20],center=true);
-    translate([-e/2,0,10])rotate([0,90,0])cylinder(d=f,h=e);
-    difference(){
-      union(){
-        translate([(e-2)/2,0,10])cube([2,f,24],center=true);
-        translate([-(e-2)/2,0,10])cube([2,f,24],center=true);
-      }
-      translate([-d,0,18])rotate([0,90,0])cylinder(d=3.5,d*2);
+  e=d+4;
+  f=d+0.9;
+  cube([e,f,20],center=true);
+  translate([-e/2,0,10])rotate([0,90,0])cylinder(d=f,h=e);
+  difference(){
+    union(){
+      translate([(e-2)/2,0,10])cube([2,f,24],center=true);
+      translate([-(e-2)/2,0,10])cube([2,f,24],center=true);
     }
-    translate([0,0,-15])box_cherry_stem(6,0.1);
+    translate([-d,0,18])rotate([0,90,0])cylinder(d=3.5,d*2);
   }
-//  translate([0,0,-27])color([0.7,0.8,0.6])import("switch_mx.stl");
+  translate([0,0,-15])box_cherry_stem(6,0.1);
+  
+  translate([0,0,-8.6])color([0.7,0.8,0.6])import("switch_mx.stl");
+}
+
+module thinStem(d=5){
+  e=d-1;
+  f=d+0.9;
+  cube([e,f,20],center=true);
+  translate([-e/2,0,10])rotate([0,90,0])cylinder(d=f,h=e);
+  difference(){
+    union(){
+      translate([d/2,0,10])cube([2,f,24],center=true);
+      translate([-d/2,0,10])cube([2,f,24],center=true);
+    }
+    translate([-d,0,18])rotate([0,90,0])cylinder(d=3.5,d*2);
+  }
+  
+  
+  
+  translate([0,0,-15])box_cherry_stem(6,0.1);
+  
+  
+  translate([0,0,-8.6])color([0.7,0.8,0.6])import("switch_mx.stl");
+}
+
+module mount(d=5){
+  translate([0,0,-40]){
+    difference(){
+      translate([0,-space/4,-4])cube([space,space*1.5, 9],center=true);
+      mxSwitchCut();
+    }
+  }
+  
+  e=d+4;
+  f=d+0.9;
+  translate([0,-27.5,-18.5]){
+    difference(){
+      cube([space,space,60],center=true);
+      translate([0,0,10])cube([d+2,space+2,41],center=true);
+      translate([-space,0,18.5])rotate([0,90,0])cylinder(d=mountHole,h=space*2);
+    }
+  }
 }
 
 module arm(d=5){
   // back
   translate([-d/2,-60,0])rotate([0,90,0]){
     difference(){
-      cylinder(d=20,h=d);
-      translate([0,0,-1])cylinder(d=7,h=d+2);
+      cylinder(d=12,h=d);
+      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
     }
   }
   
@@ -120,17 +196,24 @@ module arm(d=5){
   // cap part
   translate([0,29,-8.68]){
     cube([d,10,d],center=true);
-    translate([0,0,4])cube([d,3,d],center=true);
-    translate([-1,0,4])cube([3,10,d],center=true);
+    tMount(d);
   }
 }
 
 module all(){
   d=5;
-//  arm(d);
-//  translate([0,-32.5,0])stem(d);
-  translate([0,29,0])cap(d+1); 
+  arm(d);
+  translate([0,-38.5,-18]){
+//    stem(d);
+    thinStem(d);
+  }
+  translate([0,29,-3])cap(d,false);
+ 
+//  translate([0,-32.5,0])mount(d); 
 }
 
-all();
-//cap();
+for(i=[0:5]){
+  color([1,0,1])translate([space*i,0,0])all();
+  color([1,1,0])translate([space*i+space*0.5,-space*0.75,space/2])all();
+  color([0,1,1])translate([space*i+space*0.75,-space*1.5,space])all();
+}
