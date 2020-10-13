@@ -7,6 +7,8 @@ cherryCutOutSize=13.9954;
 cherrySize=14.58;
 mountHole=6;
 
+stemPlacement=-8;
+
 // .005 purely for aesthetics, to get rid of that ugly crosshatch
 function cherry_cross(slop, extra_vertical = 0) = [
   // horizontal tine
@@ -81,9 +83,9 @@ module curve(length, dh) {
   children();
 }
 
-module tMount(d){
-  translate([0,0,4])cube([d,3,d],center=true);
-  translate([-1,0,4])cube([3,10,d],center=true);
+module tMount(z=10,x1=1.5,y1=3,x2=2.5,y2=10){
+  translate([x1/2,0,0])cube([x1,y1,z],center=true);
+  translate([-x2/2,0,0])cube([x2,y2,z],center=true);
 }
 
 module cap(d=5,real=true){
@@ -96,7 +98,7 @@ module cap(d=5,real=true){
       }
     } else {
 //      translate([15,0,0])
-      cube([12,12,5],center=true);
+      cube([14,14,5],center=true);
     }
     
     if(real){
@@ -106,7 +108,7 @@ module cap(d=5,real=true){
       scale([1.02,1.02,1])tMount(d);
     }
   }
-    
+//  import("switch_mx.stl");
 }
 
 module stem(d=5){
@@ -120,7 +122,7 @@ module stem(d=5){
       translate([(e-2)/2,0,10])cube([2,f,24],center=true);
       translate([-(e-2)/2,0,10])cube([2,f,24],center=true);
     }
-    translate([-d,0,18])rotate([0,90,0])cylinder(d=3.5,d*2);
+    translate([-d,0,18])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,d*4);
   }
   translate([0,0,-15])box_cherry_stem(6,0.1);
   
@@ -146,6 +148,35 @@ module thinStem(d=5){
   
   
   translate([0,0,-8.6])color([0.7,0.8,0.6])import("switch_mx.stl");
+}
+
+module stem2(d=4){
+//  translate([0,0,-8])cube([d,d,1],center=true);
+  
+  f=d+1;
+  difference(){
+    union(){
+//      translate([d/2,0,10])cube([2,f,10],center=true);
+//      translate([-d/2,0,10])cube([2,f,10],center=true);
+    }
+//    translate([-d,0,10])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,h=d*4);
+  }
+
+  difference(){
+    union(){
+      translate([0,0,-9]){
+        linear_extrude(height = 10) {
+          offset(r=1){
+            square(outer_box_cherry_stem(0.1) - [2,2], center=true);
+          }
+        }
+      }
+    }
+    translate([-d,0,-2])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,h=d*4);
+    translate([0,0,-2])cube([d,d*3,10],center=true);
+  }
+  
+  translate([0,0,-15])box_cherry_stem(6,0.1);
 }
 
 module mount(d=5){
@@ -200,20 +231,70 @@ module arm(d=5){
   }
 }
 
+module arm2(d=4){
+  // back
+  translate([-d/2,-60,0])rotate([0,90,0]){
+    difference(){
+      cylinder(d=12,h=d);
+      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+    }
+  }
+  // Where stem should attach
+  translate([0,-40,0]){
+    cube([d,30,d],center=true);
+    translate([0,stemPlacement*-1,0]){
+      difference(){
+        
+        translate([0,0,-11])union(){
+          k=18;
+          cube([d,d*1.5,k],center=true);
+          translate([-d/2,0,-k/2])rotate([0,90,0])cylinder(d=d*1.5,h=d);
+        }
+        
+        translate([-d,0,-20])rotate([0,90,0])cylinder(d=3.5,h=d*2);
+      }
+    }
+//    difference(){
+//      cube([d,30,d],center=true);
+//      translate([-d,stemPlacement*-1,0])rotate([0,90,0])cylinder(d=3.5,h=d*2);
+//    }
+  }
+  
+  // the curve
+  translate([-d/2,-0.37,-2.35])
+  rotate([-10,0,0])
+  rotate([0,90,0])
+  curve(50, 8)
+  square(size=[d,d]);
+  
+  // cap part
+  translate([0,29,-8.68]){
+    cube([d,10,d],center=true);
+    translate([0.5,0,3])tMount(z=5);
+  }
+}
+
+
 module all(){
-  d=5;
-  arm(d);
-  translate([0,-38.5,-18]){
+  d=4;
+//  rotate(-4, [1,0,0])
+//  translate([0,-60,0])
+  arm2(d);
+  translate([0,(stemPlacement+40)*-1,-18]){
 //    stem(d);
-    thinStem(d);
+//    thinStem(d);
+    stem2(d);
   }
   translate([0,29,-3])cap(d,false);
  
 //  translate([0,-32.5,0])mount(d); 
 }
 
+translate([-space*3,0,0])all();
+
 for(i=[0:5]){
   color([1,0,1])translate([space*i,0,0])all();
-  color([1,1,0])translate([space*i+space*0.5,-space*0.75,space/2])all();
-  color([0,1,1])translate([space*i+space*0.75,-space*1.5,space])all();
+  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5])all();
+  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])all();
 }
+
