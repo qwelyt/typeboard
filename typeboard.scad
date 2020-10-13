@@ -339,15 +339,90 @@ module r3(d=4){
 }
 
 
-translate([-space*3,0,0])all();
 
-translate([-space*4,0,0])stem(4,10);
-translate([-space*5,0,0])stem(4,20);
-translate([-space*6,0,0])stem(4,100);
 
-for(i=[0:5]){
-  color([1,0,1])translate([space*i,0,0])r3();
-  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5])r2();
-  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])r1();
+module oth(){
+  d=4;
+  
+  as=20;
+  
+  cap(d,false);
+  translate([0,0,-as/2])cube([d,d,as],center=true);
+  
+  translate([-d/2,-80/2,-as+10])
+  rotate([-10,0,0])
+  rotate([0,90,0])
+  curve(80,16)
+  square(size=[d,d]);
+  
+  
+//  translate([0,-50-30/2,-as+10])
+//  rotate([-30,0,0])
+//  cube([d,30,d],center=true);
+  
+  
+  translate([0,-50-5,-37])stem(d,h=10);
+  
+  translate([-d/2,-50-30-d,-as+10+d*2])
+  rotate([0,90,0]){
+    difference(){
+      cylinder(d=12,h=d);
+      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+    }
+    #translate([0,0,-1])cylinder(d=mountHole,h=60);
+  }
 }
 
+module overOth(){
+  d=4;
+  as=20;
+  
+  cap(d,false);
+  translate([0,0,-as/2])cube([d,d,as],center=true);
+  
+  translate([-d/2,-40/2,-as+7])
+  rotate([-10,0,0])
+  rotate([0,90,0])
+  curve(40,8)
+  square(size=[d,d]);
+  
+  translate([-d/2,-59.05,-as+13.5])
+  rotate([-10,0,0])
+  rotate([0,90,0])
+  curve(40,-8)
+  square(size=[d,d]);
+  
+  translate([0,-50-5,-30])stem(d,h=40);
+  
+  translate([-d/2,-50-30,-as+10+d])
+  rotate([0,90,0]){
+    difference(){
+      cylinder(d=12,h=d);
+      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+    }
+    #translate([0,0,-1])cylinder(d=mountHole,h=60);
+  }
+}
+
+//translate([space,-space*5,0])oth();
+//translate([space*1.5,-space*6,space*0.5])oth();
+//translate([space*1.75,-space*7,space])oth();
+//translate([space*1.75,-space*7,space])overOth();
+
+//translate([-space*3,0,0])all();
+//
+//translate([-space*4,0,0])stem(4,10);
+//translate([-space*5,0,0])stem(4,20);
+//translate([-space*6,0,0])stem(4,100);
+
+//for(i=[0:5]){
+//  color([1,0,1])translate([space*i,0,0])r3();
+//  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5])r2();
+//  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])r1();
+//}
+
+for(i=[0:5]){
+  color([1,0,1])translate([space*i,0,0])oth();
+  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5])oth();
+  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])overOth();
+}
