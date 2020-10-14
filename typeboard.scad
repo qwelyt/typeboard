@@ -27,17 +27,20 @@ module inside_cherry_cross(slop) {
       square(cherry_cross(slop, extra_vertical)[1], center=true);
     }
   }
+}
 
+module roundedCube(depth, slop, remover=[2,2]){
+  linear_extrude(height = depth) {
+      offset(r=1){
+        square(outer_box_cherry_stem(slop) - remover, center=true);
+      }
+    }
 }
 
 module box_cherry_stem(depth, slop) {
   difference(){
     // outside shape
-    linear_extrude(height = depth) {
-      offset(r=1){
-        square(outer_box_cherry_stem(slop) - [2,2], center=true);
-      }
-    }
+    roundedCube(depth,slop);
 
     // inside cross
     inside_cherry_cross(slop);
@@ -73,14 +76,20 @@ module mxSwitchCut(x=0,y=0,z=0,rotateCap=false){
 
 
 module curve(length, dh) {
-  r = (pow(length/2, 2) + pow(dh, 2))/(2*dh);
-  a = 2*asin((length/2)/r);
-  
-  translate([-(r -dh), 0, 0])
-  rotate([0, 0, -a/2])
-  rotate_extrude(angle = a)
-  translate([r, 0, 0])
-  children();
+  if(dh == 0){
+    rotate([90,0,0])
+    linear_extrude(length,center=true)
+    children();
+  } else {
+    r = (pow(length/2, 2) + pow(dh, 2))/(2*dh);
+    a = 2*asin((length/2)/r);
+    
+    translate([-(r -dh), 0, 0])
+    rotate([0, 0, -a/2])
+    rotate_extrude(angle = a)
+    translate([r, 0, 0])
+    children();
+  }
 }
 
 module tMount(z=10,x1=1.5,y1=3,x2=2.5,y2=10){
@@ -130,7 +139,48 @@ module stem(d=5,h=20){
   translate([0,0,-(a+5)])box_cherry_stem(6,0.1);
   
 
-  translate([0,0,-a+1.4])color([0.7,0.8,0.6])import("switch_mx.stl");
+//  translate([0,0,-a+1.4])color([0.7,0.8,0.6])import("switch_mx.stl");
+}
+
+module dstem(d=5,h=20){
+  e=d+3;
+  f=d+0.9;
+  
+  cube([d,f,h],center=true);
+  translate([-d/2,0,h/2])rotate([0,90,0])cylinder(d=f,h=d);
+  difference(){
+    translate([0,0,h/2+3])union(){
+      translate([(e-2)/2,0,0])cube([1,f,15],center=true);
+      translate([-(e-2)/2,0,0])cube([1,f,15],center=true);
+    }
+    translate([-d,0,h/2+8])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,d*4);
+  }
+  
+  a = h/10*5;
+  
+  translate([0,0,-(a+5)])box_cherry_stem(6,0.1);
+  
+
+//  translate([0,0,-a+1.4])color([0.7,0.8,0.6])import("switch_mx.stl");
+}
+
+module tstem(d=4,h=20){
+  a = h/10*5;
+  b = d+1.9;
+  c = d-0.1;
+  
+  translate([0,0,10])difference(){
+    cube([d*1.3,d*1,10],center=true);
+    cube([d,d*2,12],center=true);
+    translate([0,0,3])rotate([0,90,0])translate([0,0,-d*2])cylinder(d=3.5,d*4);
+  }
+  
+  translate([-d/2,0,h/2-d/2])rotate([0,90,0])cylinder(d=d,h=d);
+  translate([0,0,-h/2+8])cube([d,d,h],center=true);
+  
+  translate([0,0,-(a+5)])box_cherry_stem(6,0.1);
+  
+//  translate([0,0,-a+1.4])color([0.7,0.8,0.6])import("switch_mx.stl");
 }
 
 module thinStem(d=5){
@@ -386,15 +436,98 @@ module overOth(){
   curve(40,8)
   square(size=[d,d]);
   
-  translate([-d/2,-59.05,-as+13.5])
-  rotate([-10,0,0])
+  translate([-d/2,-60.02,-as+16])
+  rotate([-17,0,0])
   rotate([0,90,0])
-  curve(40,-8)
+  curve(44,-7)
   square(size=[d,d]);
   
   translate([0,-50-5,-30])stem(d,h=40);
   
-  translate([-d/2,-50-30,-as+10+d])
+  translate([-d/2,-50-30-d,-as+10+d*2])
+  rotate([0,90,0]){
+    difference(){
+      cylinder(d=12,h=d);
+      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+    }
+    #translate([0,0,-1])cylinder(d=mountHole,h=60);
+  }
+}
+
+module fas(row=1){
+  d = 4;
+  as=20;
+  
+  cap(d,false);
+//  translate([0,0,-as/2])cube([d,d,as],center=true);
+  
+  
+  if(row==1){
+//    translate([0,-space*4.2,0])cube([d,space*2,d],center=true);
+    translate([0,0,-as/2])cube([d,d,as+2],center=true);
+    
+    translate([-d/2,-6,-20.7])
+      rotate([18,0,0])
+      rotate([0,90,0])
+      curve(8,2)
+      square(size=[d,d]);
+    
+    
+    translate([-d/2,-space*2.9,-10])
+      rotate([-15,0,0])
+      rotate([0,90,0])
+      curve(space*5,-8)
+      square(size=[d,d]);
+    
+    
+    translate([0,-space*4,-18])dstem(d,20);
+  } else if(row == 2){
+      translate([0,0,-as/2])cube([d,d,as+5],center=true);
+    
+      translate([-d/2,-space*2.6,-as+10])
+      rotate([-10,0,0])
+      rotate([0,90,0])
+      curve(space*5.4,16)
+      square(size=[d,d]);
+    
+      translate([0,-space*4,-33])dstem(d,9);
+  } else if(row == 3){
+    translate([0,0,-as/2])cube([d,d,as],center=true);
+    
+    translate([-d/2,-space*3.9,-as+17])
+      rotate([-10,0,0])
+      rotate([0,90,0])
+      curve(space*3,-8)
+      square(size=[d,d]);
+    
+    translate([-d/2,-space*1.195,-as+7.97])
+      rotate([-10,0,0])
+      rotate([0,90,0])
+      curve(space*2.5,8)
+      square(size=[d,d]);
+    
+    translate([0,-space*4,-25.7])dstem(d,42.5);
+  } else if(row == 4){
+    translate([0,-5.5,-4.85])
+    cube([d,17,d],center=true);
+    
+    translate([-d/2,-space*1-4.1,-as+10])
+      rotate([35,0,0])
+      rotate([0,90,0])
+      curve(space*1.3,-5)
+      square(size=[d,d]);
+    
+    translate([-d/2,-space*3.5,-as+10])
+      rotate([-10,0,0])
+      scale([1,0.9,1])
+      rotate([0,90,0])
+      curve(space*4,30)
+      square(size=[d*1.1,d]);
+    
+    translate([0,-space*4,-52.8])dstem(d,8);
+  }
+  
+  translate([-d/2,-space*5.5,0])
   rotate([0,90,0]){
     difference(){
       cylinder(d=12,h=d);
@@ -421,8 +554,45 @@ module overOth(){
 //  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])r1();
 //}
 
+//for(i=[0:5]){
+//  color([1,0,1])translate([space*i,0,0])oth();
+//  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5])oth();
+//  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])overOth();
+//  color([0.8,0.4,1])translate([space*i+space*1,-space*3,space*1.5])overOth();
+//}
+
+fas();
+
 for(i=[0:5]){
-  color([1,0,1])translate([space*i,0,0])oth();
-  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5])oth();
-  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1])overOth();
+  color([1,0,1])translate([space*i,0,0]){
+    fas();
+    
+    color([0.7,0.8,0.6])
+    translate([0,-space*4,-space*1.4+0.2])
+    import("switch_mx.stl");
+  }
+  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5]){
+    fas(2);
+    
+    color([0.7,0.8,0.6])
+    translate([0,-space*4,-space*1.4+0.2])
+    translate([0,0,-space*0.5])
+    import("switch_mx.stl");
+  }
+  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1]){
+    fas(3);
+    
+    color([0.7,0.8,0.6])
+    translate([0,-space*4,-space*1.4+0.2])
+    translate([0,0,-space*1])
+    import("switch_mx.stl");
+  }
+  color([0.8,0.4,1])translate([space*i+space*0.75+space*0.5,-space*3,space*1.5]){
+    fas(4);
+    
+    color([0.7,0.8,0.6])
+    translate([0,-space*4,-space*1.4+0.2])
+    translate([0,0,-space*1.5])
+    import("switch_mx.stl");
+  }
 }
