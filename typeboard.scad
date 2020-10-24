@@ -537,6 +537,40 @@ module fas(row=1){
   }
 }
 
+module laf(row=1){
+  d = 4;
+  as=20;
+  
+//  cap(d,false);
+  
+  if(row == 1){
+    m=21;
+    
+    translate([0,-space*3.19,2-m])dstem(d,m);
+    
+    translate([0,0,-d])
+    cube([d,10,d],center=true);
+    translate([0.5,0,0])tMount(d);
+    
+    translate([-d/2,-space*1.4-0.1,-0.3])
+      rotate([-5,0,0])
+      rotate([0,90,0])
+      curve(space*2.7,14)
+      square(size=[d,d]);
+    
+    translate([0,-space*3.6,0])cube([d,space*1.7,d],center=true);
+  }
+  
+  translate([-d/2,-space*4.65,0])
+  rotate([0,90,0]){
+    difference(){
+      cylinder(d=12,h=d);
+      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+    }
+    #translate([0,0,-1])cylinder(d=mountHole,h=60);
+  }
+}
+
 //translate([space,-space*5,0])oth();
 //translate([space*1.5,-space*6,space*0.5])oth();
 //translate([space*1.75,-space*7,space])oth();
@@ -561,7 +595,9 @@ module fas(row=1){
 //  color([0.8,0.4,1])translate([space*i+space*1,-space*3,space*1.5])overOth();
 //}
 
-fas();
+//fas();
+translate([-space*5,0,0])laf();
+translate([-space*4,-space*1.5,0])all();
 
 for(i=[0:5]){
   color([1,0,1])translate([space*i,0,0]){
