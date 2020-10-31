@@ -1,4 +1,8 @@
+row=1; // [1,2,3,4]
+part="all"; //["all","arm","stem"]
+cap=false;
 
+showAllRows=false;
 $fn= 400;
 $stem_throw = 4;
 extra_vertical=0;
@@ -113,7 +117,7 @@ module cap(d=5,real=true){
     if(real){
       translate([0,0,5])scale([0.9,0.9,0.35])sphere(d=19);
     }
-    translate([0,0,-6]){
+    translate([0.5,0,-1]){
       scale([1.02,1.02,1])tMount(d);
     }
   }
@@ -142,18 +146,32 @@ module stem(d=5,h=20){
 //  translate([0,0,-a+1.4])color([0.7,0.8,0.6])import("switch_mx.stl");
 }
 
+module dstemHole(d,h){
+  translate([-d,0,h/2+8])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,d*4);
+}
+
 module dstem(d=5,h=20){
   e=d+3;
   f=d+0.9;
   
+    
   cube([d,f,h],center=true);
   translate([-d/2,0,h/2])rotate([0,90,0])cylinder(d=f,h=d);
   difference(){
     translate([0,0,h/2+3])union(){
       translate([(e-2)/2,0,0])cube([1,f,15],center=true);
       translate([-(e-2)/2,0,0])cube([1,f,15],center=true);
+      
+      translate([(e-2)/2-0.8,-f/2,-8.25])
+      rotate([0,90,90])
+      cylinder(d=3,h=f,$fn=3);
+      
+      translate([-(e-2)/2+0.8,-f/2,-8.25])
+      rotate([0,90,90])
+      cylinder(d=3,h=f,$fn=3);
     }
-    translate([-d,0,h/2+8])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,d*4);
+//    translate([-d,0,h/2+8])rotate([0,90,0])translate([0,0,-d])cylinder(d=3.5,d*4);
+    dstemHole(d,h);
   }
   
   a = h/10*5;
@@ -454,120 +472,151 @@ module overOth(){
   }
 }
 
-module fas(row=1){
-  d = 4;
+module fas(row=1,part="all"){
+  d = 4.5;
   as=20;
   
-  cap(d,false);
+  if(cap){
+    cap(d,false);
+//    cap(d,true);
+  }
+  if(part == "all" || part == "arm"){
+    translate([0.25,0,0])tMount(d);
+  }
 //  translate([0,0,-as/2])cube([d,d,as],center=true);
   
   
   if(row==1){
-//    translate([0,-space*4.2,0])cube([d,space*2,d],center=true);
-    translate([0,0,-as/2])cube([d,d,as+2],center=true);
-    
-    translate([-d/2,-6,-20.7])
-      rotate([18,0,0])
-      rotate([0,90,0])
-      curve(8,2)
-      square(size=[d,d]);
-    
-    
-    translate([-d/2,-space*2.9,-10])
-      rotate([-15,0,0])
-      rotate([0,90,0])
-      curve(space*5,-8)
-      square(size=[d,d]);
-    
-    
-    translate([0,-space*4,-18])dstem(d,20);
+    s = 19.5;
+    m = -18;
+    difference(){
+      union(){
+        if(part == "all" || part == "arm"){
+          translate([0,0,-as/2-1.4])cube([d,d,as-1],center=true);
+          
+          translate([-d/2,-6,-20.7])
+            rotate([18,0,0])
+            rotate([0,90,0])
+            curve(8,2)
+            square(size=[d,d]);
+          
+          
+          translate([-d/2,-space*2.9,-10])
+            rotate([-15,0,0])
+            rotate([0,90,0])
+            curve(space*5,-8)
+            square(size=[d,d]);
+        }        
+        
+        if(part == "all" || part == "stem"){
+          translate([0,-space*4,m])dstem(d,s);
+        }
+      }
+      translate([0,-space*4,m])dstemHole(d,s);
+    }
   } else if(row == 2){
-      translate([0,0,-as/2])cube([d,d,as+5],center=true);
-    
-      translate([-d/2,-space*2.6,-as+10])
-      rotate([-10,0,0])
-      rotate([0,90,0])
-      curve(space*5.4,16)
-      square(size=[d,d]);
-    
-      translate([0,-space*4,-33])dstem(d,9);
+    s = 3.3;
+    m = -35.8;
+    difference(){
+      union(){
+        if(part == "all" || part == "arm"){
+          translate([0,0,-as/2-1])cube([d,d,as-1],center=true);
+        
+          translate([-d/2,-space*2.5,-as+11])
+            rotate([-10,0,0])
+            rotate([0,90,0])
+            curve(space*5,25)
+            square(size=[d,d]);
+        
+          translate([-d/2,-space*5.122,1])
+            rotate([-34,0,0])
+            rotate([0,90,0])
+            curve(8,-1.2)
+            square(size=[d,d]);
+        }
+        if(part == "all" || part == "stem"){
+          translate([0,-space*4,m])dstem(d,s);
+        }
+      }
+      translate([0,-space*4,m])dstemHole(d,s);
+    }
   } else if(row == 3){
-    translate([0,0,-as/2])cube([d,d,as],center=true);
-    
-    translate([-d/2,-space*3.9,-as+17])
-      rotate([-10,0,0])
-      rotate([0,90,0])
-      curve(space*3,-8)
-      square(size=[d,d]);
-    
-    translate([-d/2,-space*1.195,-as+7.97])
-      rotate([-10,0,0])
-      rotate([0,90,0])
-      curve(space*2.5,8)
-      square(size=[d,d]);
-    
-    translate([0,-space*4,-25.7])dstem(d,42.5);
+    s=42;
+    m=-26;
+    echo("BROKEN!");
+    difference(){
+      union(){
+        if(part == "all" || part == "arm"){
+          translate([0,0,-as/2+0.5])cube([d,d,as-4.5],center=true);
+          
+          translate([-d/2,-space*1.22,-10.55])
+            rotate([-7,0,0])
+            rotate([0,90,0])
+            curve(space*2.45,8)
+            square(size=[d,d]);
+          
+          translate([-d/2,-space*3.9,-as+17])
+            rotate([-10,0,0])
+            rotate([0,90,0])
+            curve(space*3,-8)
+            square(size=[d,d]);
+        }
+        if(part == "all" || part == "stem"){
+          translate([0,-space*4,m])dstem(d,s);
+        }
+      }
+      translate([0,-space*4,m])dstemHole(d,s);
+    }
   } else if(row == 4){
-    translate([0,-5.5,-4.85])
-    cube([d,17,d],center=true);
-    
-    translate([-d/2,-space*1-4.1,-as+10])
-      rotate([35,0,0])
-      rotate([0,90,0])
-      curve(space*1.3,-5)
-      square(size=[d,d]);
-    
-    translate([-d/2,-space*3.5,-as+10])
-      rotate([-10,0,0])
-      scale([1,0.9,1])
-      rotate([0,90,0])
-      curve(space*4,30)
-      square(size=[d*1.1,d]);
-    
-    translate([0,-space*4,-52.8])dstem(d,8);
-  }
-  
-  translate([-d/2,-space*5.5,0])
-  rotate([0,90,0]){
+    s=9.5;
+    m=-51.7;
     difference(){
-      cylinder(d=12,h=d);
-      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
-    }
-    #translate([0,0,-1])cylinder(d=mountHole,h=60);
-  }
-}
+      union(){
+        if(part == "all" || part == "arm"){
+          ps=7.45;
+          translate([0,0,-ps/2-2])cube([d,d,ps],center=true);
+          
+          translate([0,-6.25,-7.2])
+          cube([d,16.5,d],center=true);
+          
+          translate([-d/2,-space*1.22,-as+10])
+            rotate([29,0,0])
+            rotate([0,90,0])
+            curve(space*1.1,-3)
+            square(size=[d,d]);
+          
+          translate([-d/2,-space*3.31,-as+11])
+            rotate([-11,0,0])
+            scale([1,0.8,1])
+            rotate([0,90,0])
+            curve(space*4.1,30)
+            square(size=[d*1.2,d]);
+          
+          translate([-d/2,-space*5.145,-1])
+            rotate([-34,0,0])
+            rotate([0,90,0])
+            curve(10.5,-3)
+            square(size=[d,d]);
+        }
 
-module laf(row=1){
-  d = 4;
-  as=20;
-  
-//  cap(d,false);
-  
-  if(row == 1){
-    m=21;
-    
-    translate([0,-space*3.19,2-m])dstem(d,m);
-    
-    translate([0,0,-d])
-    cube([d,10,d],center=true);
-    translate([0.5,0,0])tMount(d);
-    
-    translate([-d/2,-space*1.4-0.1,-0.3])
-      rotate([-5,0,0])
-      rotate([0,90,0])
-      curve(space*2.7,14)
-      square(size=[d,d]);
-    
-    translate([0,-space*3.6,0])cube([d,space*1.7,d],center=true);
+        if(part == "all" || part == "stem"){
+          translate([0,-space*4,m])dstem(d,s);
+        }
+      }
+      translate([0,-space*4,m])dstemHole(d,s);
+    }
   }
   
-  translate([-d/2,-space*4.65,0])
-  rotate([0,90,0]){
-    difference(){
-      cylinder(d=12,h=d);
-      translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+  
+  if(part == "all" || part == "arm"){
+    translate([-d/2,-space*5.5,0])
+    rotate([0,90,0]){
+      difference(){
+        cylinder(d=12,h=d);
+        translate([0,0,-1])cylinder(d=mountHole,h=d+2);
+      }
+//    #translate([0,0,-1])cylinder(d=mountHole,h=60);
     }
-    #translate([0,0,-1])cylinder(d=mountHole,h=60);
   }
 }
 
@@ -596,39 +645,46 @@ module laf(row=1){
 //}
 
 //fas();
-translate([-space*5,0,0])laf();
-translate([-space*4,-space*1.5,0])all();
 
-for(i=[0:5]){
-  color([1,0,1])translate([space*i,0,0]){
-    fas();
-    
-    color([0.7,0.8,0.6])
-    translate([0,-space*4,-space*1.4+0.2])
-    import("switch_mx.stl");
+
+if(showAllRows){
+  for(i=[0:5]){
+    color([1,0,1])translate([space*i,0,0]){
+      fas();
+      
+      color([0.7,0.8,0.6])
+      translate([0,-space*4,-space*1.4+0.2])
+      import("switch_mx.stl");
+    }
+    color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5]){
+      fas(2);
+      
+      color([0.7,0.8,0.6])
+      translate([0,-space*4,-space*1.4+0.2])
+      translate([0,0,-space*0.5])
+      import("switch_mx.stl");
+    }
+    color([0,1,1])translate([space*i+space*0.75,-space*2,space*1]){
+      fas(3);
+      
+      color([0.7,0.8,0.6])
+      translate([0,-space*4,-space*1.4+0.2])
+      translate([0,0,-space*1])
+      import("switch_mx.stl");
+    }
+    color([0.8,0.4,1])translate([space*i+space*0.75+space*0.5,-space*3,space*1.5]){
+      fas(4);
+      
+      color([0.7,0.8,0.6])
+      translate([0,-space*4,-space*1.4+0.2])
+      translate([0,0,-space*1.5])
+      import("switch_mx.stl");
+    }
   }
-  color([1,1,0])translate([space*i+space*0.5,-space*1,space*0.5]){
-    fas(2);
-    
-    color([0.7,0.8,0.6])
-    translate([0,-space*4,-space*1.4+0.2])
-    translate([0,0,-space*0.5])
-    import("switch_mx.stl");
-  }
-  color([0,1,1])translate([space*i+space*0.75,-space*2,space*1]){
-    fas(3);
-    
-    color([0.7,0.8,0.6])
-    translate([0,-space*4,-space*1.4+0.2])
-    translate([0,0,-space*1])
-    import("switch_mx.stl");
-  }
-  color([0.8,0.4,1])translate([space*i+space*0.75+space*0.5,-space*3,space*1.5]){
-    fas(4);
-    
-    color([0.7,0.8,0.6])
-    translate([0,-space*4,-space*1.4+0.2])
-    translate([0,0,-space*1.5])
-    import("switch_mx.stl");
-  }
+} else {
+//  fas(row,part);
+//  difference(){
+    cap(4,true);
+//    translate([0,0,-1])tMount(4);
+//  }
 }
