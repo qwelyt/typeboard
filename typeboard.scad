@@ -541,7 +541,7 @@ module laf(row=1){
   d = 4;
   as=20;
   
-//  cap(d,false);
+  cap(d,false);
   
   if(row == 1){
     m=21;
@@ -559,6 +559,7 @@ module laf(row=1){
       square(size=[d,d]);
     
     translate([0,-space*3.6,0])cube([d,space*1.7,d],center=true);
+  } else if (row == 2) {
   }
   
   translate([-d/2,-space*4.65,0])
@@ -597,7 +598,8 @@ module laf(row=1){
 
 //fas();
 translate([-space*5,0,0])laf();
-translate([-space*4,-space*1.5,0])all();
+translate([-space*6,-space,space*0.5])laf(row=2);
+//translate([-space*4,-space*1.5,0])all();
 
 for(i=[0:5]){
   color([1,0,1])translate([space*i,0,0]){
